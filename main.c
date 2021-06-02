@@ -16,19 +16,14 @@ int main() {
 
     // initializing variables
     igraph_t graph;
-    igraph_vector_t v;
-    igraph_real_t edges[] = {1, 2, 1, 3, 1, 4, 1, 6, 2, 5, 2, 3, 2, 6, 3, 4, 4, 5, 4, 6};
 
-    // create a vector carrying more efficiently the edges
-    igraph_vector_view(&v,
-                       edges,
-                       sizeof(edges) / sizeof(double));
+    FILE *gfile;
+    gfile = fopen("graph_easy.txt","r");
 
-    // create the graph
-    igraph_create(&graph,
-                  &v,
-                  0,
-                  IGRAPH_UNDIRECTED);
+
+
+    if(!igraph_read_graph_edgelist(graph, gfile, 0, IGRAPH_UNDIRECTED))
+        printf("rip\n")
 
     igraph_vector_t vids;
     igraph_vector_init(&vids, 0);
@@ -46,6 +41,8 @@ int main() {
     print_vector(&parents);
 
     // destroy the objects
+
+    fclose(gfile)
     igraph_destroy(&graph);
     igraph_vector_destroy(&vids);
     return 0;

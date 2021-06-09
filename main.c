@@ -1,12 +1,20 @@
 #include <stdio.h>
 #include <igraph/igraph.h>
 
+void read_file(igraph_t *graph)
+{
+    FILE *gfile;
+    gfile = fopen("/home/martin/Data/VLG/graph_easy.txt","r");
+    if(igraph_read_graph_edgelist(graph, gfile, 0, IGRAPH_UNDIRECTED))
+        printf("rip\n");
+    fclose(gfile);
+}
+
 void vector_print(igraph_vector_t *v)
 {
     long int i;
-    for (i = 0; i < igraph_vector_size(v); i++) {
+    for (i = 0; i < igraph_vector_size(v); i++)
         printf(" %li", (long int) VECTOR(*v)[i]);
-    }
     printf("\n");
 }
 
@@ -18,6 +26,18 @@ void graph_print(const igraph_t *graph)
     vector_print(&vector);
 }
 
+void get_subset(igraph_vector_t *vertices, igraph_t *graph)
+{
+    /// return a random get_subset of vertices
+    igraph_integer_t n, k;
+    n = igraph_vcount(graph);
+    k = (igraph_integer_t)((double)n * 0.5);
+
+    igraph_vector_init_seq(vertices, 0, igraph_vcount(graph) - 1);
+    igraph_vector_shuffle(vertices);
+    igraph_vector_resize(vertices, k);
+}
+
 void merge(igraph_t *graph, igraph_vector_t *parents)
 {
     /// XXX uses a lot of RAM by allocationg a vedges
@@ -25,9 +45,9 @@ void merge(igraph_t *graph, igraph_vector_t *parents)
     igraph_vector_init(&vedges, igraph_vector_size(parents) * 2);
 
     long int it = 0;
-    for (long int i = 0; i < igraph_vector_size(parents); i++)
+    for (igraph_integer_t i = 0; i < igraph_vector_size(parents); i++)
     {
-        long int p_i = VECTOR(*parents)[i];
+        igraph_integer_t p_i = VECTOR(*parents)[i];
         igraph_vector_t neighbors;
         igraph_vector_init(&neighbors, 0);
         igraph_neighbors(graph, &neighbors, i, IGRAPH_ALL);
@@ -61,47 +81,49 @@ int main() {
 
     igraph_t graph;
     igraph_t spanner;
+    igraph_vector_t subset;
 
-    // reading the file
-    FILE *gfile;
-    gfile = fopen("/home/martin/Data/VLG/graph_easy.txt","r");
-    if(igraph_read_graph_edgelist(&graph, gfile, 0, IGRAPH_UNDIRECTED))
-        printf("rip\n");
-
-    // initializing variables
-    igraph_empty(&spanner, igraph_vcount(&graph), IGRAPH_UNDIRECTED);
-
-    // bfs
     igraph_vector_t vids, layers, parents;
     igraph_vector_init(&vids, 0);
     igraph_vector_init(&layers, 0);
     igraph_vector_init(&parents, 0);
 
-    igraph_bfs_simple(&graph,
-                      5,
-                      IGRAPH_ALL,
-                      &vids,
-                      &layers,
-                      &parents);
+    read_file(&graph);
 
-    printf("BFS:\n");
-    vector_print(&vids);
-    vector_print(&layers);
-    vector_print(&parents);
-    printf("\n");
+    // (1) we choose a subset S of get_subset
+    printf("SUBSET:\n");
+    get_subset(&subset, &graph);
+    vector_print(&subset);
 
-    // merge
-    printf("MERGE:");
-    merge(&spanner, &parents);
+    // (2) initializing H containing all G get_subset without edges
+    igraph_empty(&spanner, igraph_vcount(&graph), IGRAPH_UNDIRECTED);
+
+    // (3) for s in S
+    for (igraph_integer_t i = 0; i < igraph_vector_size(&subset); i++)
+    {
+        // (3.a) computing the BFS
+        igraph_bfs_simple(&graph,
+                          VECTOR(subset)[i],
+                          IGRAPH_ALL,
+                          &vids,
+                          &layers,
+                          &parents);
+
+        // (3.b) merging with the spanner
+        merge(&spanner, &parents);
+
+        // (3.c) computing the difference between higher and lower bounds
+    }
+
     graph_print(&spanner);
 
-    // destroy the objects
-    igraph_destroy(&graph);
-    igraph_destroy(&spanner);
+    // destroying the bfs objects
     igraph_vector_destroy(&vids);
     igraph_vector_destroy(&layers);
     igraph_vector_destroy(&parents);
+    // destroy the objects
+    igraph_destroy(&graph);
+    igraph_destroy(&spanner);
 
-    fclose(gfile);
     return 0;
 }

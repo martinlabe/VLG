@@ -184,7 +184,9 @@ int main() {
     
     
         VECTOR(ecc)[v] = igraph_vector_size(&layers) - 2;
-        VECTOR(eccbool)[v] = 1;
+        VECTOR(eccmin)[v] = igraph_vector_size(&layers) - 2;
+        VECTOR(eccmax)[v] = igraph_vector_size(&layers) - 2;
+	VECTOR(eccbool)[v] = 1;
 
 	
 	igraph_integer_t di = 1;

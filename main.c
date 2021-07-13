@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <igraph/igraph.h>
 #include <float.h>
+#include <sys/time.h>
 
+#define VERBOSE
 
 igraph_real_t min(igraph_real_t a, igraph_real_t b) {
     igraph_real_t c = a;
@@ -9,7 +11,6 @@ igraph_real_t min(igraph_real_t a, igraph_real_t b) {
         c = b;
     return c;
 }
-
 
 igraph_real_t max(igraph_real_t a, igraph_real_t b) {
     igraph_real_t c = a;
@@ -43,13 +44,20 @@ igraph_real_t max_vec(igraph_vector_t *v) {
 
 
 void read_file(char *filename, igraph_t *graph) {
-    printf("reading...\n");
     FILE *gfile;
     gfile = fopen(filename, "r");
     if (igraph_read_graph_edgelist(graph, gfile, 0, IGRAPH_UNDIRECTED))
-        printf("rip\n");
+    {
+#ifdef VERBOSE
+        printf("[KO] Reading\n");
+#endif
+        exit(2);
+    }
     fclose(gfile);
-    printf("reading success\n");
+#ifdef VERBOSE
+    printf("[OK] Reading %s\n", filename);
+    printf("[OK] Graph of %i elements\n", igraph_vcount(graph));
+#endif
 }
 
 void vector_print(igraph_vector_t *v) {
@@ -58,14 +66,6 @@ void vector_print(igraph_vector_t *v) {
         printf(" %li", (long int) VECTOR(*v)[i]);
     printf("\n");
 }
-
-void vector_bool_print(igraph_vector_bool_t *v) {
-    long int i;
-    for (i = 0; i < igraph_vector_bool_size(v); i++)
-        printf(" %li", (long int) VECTOR(*v)[i]);
-    printf("\n");
-}
-
 
 void graph_print(const igraph_t *graph) {
     igraph_vector_t vector;
@@ -83,6 +83,9 @@ void get_subset(igraph_vector_t *vertices, igraph_t *graph) {
     igraph_vector_init_seq(vertices, 0, igraph_vcount(graph) - 1);
     igraph_vector_shuffle(vertices);
     igraph_vector_resize(vertices, k);
+#ifdef VERBOSE
+    printf("[OK] Subset of %li elements\n", igraph_vector_size(vertices));
+#endif
 }
 
 void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
@@ -123,12 +126,18 @@ void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
     igraph_vector_destroy(&vedges);
 }
 
+unsigned nbfs = 0;
+
 
 int main(int argc, char *argv[]) {
-    printf("Hello, World!\n");
 
     if (argc != 2)
         exit(1);
+
+    struct timeval t1, t2;
+    gettimeofday (&t1, NULL);
+
+    int true_ecc = 8;
 
     igraph_t graph;
     igraph_t spanner;
@@ -146,6 +155,7 @@ int main(int argc, char *argv[]) {
 
     read_file(argv[1], &graph);
 
+
     igraph_vector_init(&eccmin, igraph_vcount(&graph));
     igraph_vector_fill(&eccmin, -DBL_MAX);
     igraph_vector_init(&eccmax, igraph_vcount(&graph));
@@ -156,7 +166,6 @@ int main(int argc, char *argv[]) {
     igraph_vector_fill(&eccdelta, DBL_MAX);
 
     // (1) we choose a subset S of get_subset
-    printf("SUBSET\n");
     get_subset(&subset, &graph);
 
     // (2) initializing H containing all G get_subset without edges
@@ -178,6 +187,7 @@ int main(int argc, char *argv[]) {
                           &vids,
                           &layers,
                           &parents);
+        nbfs++;
 
         // (3.b) merging with the spanner
         merge(&spanner, &parents, &vdeg);
@@ -214,32 +224,22 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-
         }
 
-        if (max_vec(&eccmax) == 8)
+        if (max_vec(&eccmax) == true_ecc)
         {
             printf("%i\n", i);
             break;
         }
-#if 0
-        printf("\n");
-        printf("DELTA\n");
-        igraph_real_t meandelta = mean(&eccdelta);
-        igraph_real_t vardelta = var(&eccdelta, meandelta);
-        printf("mean = %f\n", meandelta);
-        printf("var = %f\n", vardelta);
-        printf("DEGREE:\n");
-        igraph_real_t meandeg = mean(&vdeg);
-        printf("mean deg = %f\n", meandeg);
-#endif
     }
 
-    // printf("SPANNER\n");
-    // graph_print(&spanner);
-
-
-    printf("maxecc = %f\n", max_vec(&eccmax));
+    gettimeofday (&t2, NULL);
+    long time = ((t2.tv_sec - t1.tv_sec) * 1000000 + t2.tv_usec) - t1.tv_usec;
+    unsigned diameter = (unsigned)max_vec(&eccmax);
+    // export the results
+    FILE *fp = fopen("../out.txt", "w");
+    fprintf(fp, "%u, %u, %ld", diameter, nbfs, time);
+    fclose(fp);
 
     // destroying the bfs objects
     igraph_vector_destroy(&vids);

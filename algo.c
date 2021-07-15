@@ -226,12 +226,6 @@ struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_ve
 	    }
         }        
 
-#if VERBOSE
-
-        //calculate and print the actual diameter
-	m.diameter = VECTOR(ecc->eccmax)[next];
-        printf("diameter = %lu\n", m.diameter);
-#endif
         //use the subset instead of the next depending of the choosen subset number 
         if (m.nbfs < nb_subset)
            next = VECTOR(*subset)[m.nbfs];

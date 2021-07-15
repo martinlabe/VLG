@@ -1,7 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 #include <igraph/igraph.h>
 

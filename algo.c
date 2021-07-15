@@ -103,7 +103,7 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
 
 #if VERBOSE
     //print the diametral path if verbose
-    printf("diametral path: \n");
+    printf("\ndiametral path: \n");
     igraph_vector_t path;
     get_diameter_path(&path, &spanner, &bfs_v, &ecc, m.diameter);
     vector_print(&path);

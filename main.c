@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
 #if VERBOSE
-    printf("diameter = %u\n, nb_iter = %u\n, time = %ld\n", m.diameter, m.nbfs, time);
+    printf("\ndiameter = %u\nnb_iter = %u\ntime = %ld\n", m.diameter, m.nbfs, time);
 #endif
 
     // destroy the objects
@@ -74,5 +74,5 @@ int main(int argc, char *argv[]) {
 
 
 
-    return 0;
+    return m.diameter;
 }

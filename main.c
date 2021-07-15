@@ -3,6 +3,7 @@
 #include <igraph/igraph.h>
 #include <float.h>
 #include <sys/time.h>
+#include <string.h>
 #include "IO.h"
 #include "algo.h"
 #include "utils.h"
@@ -63,6 +64,7 @@ int main(int argc, char *argv[]) {
 
     // export the results
     char sbuf[1024];
+    argv[2][strlen(argv[2]) - 4] = '\0';
     sprintf (sbuf, "%s-%s_%d.txt", argv[1], argv[2] + 10, nb_subset);
     FILE *fp = fopen(sbuf, "a");
     fprintf(fp, "%u, %u, %ld\n", m.diameter, m.nbfs, time);

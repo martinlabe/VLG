@@ -7,13 +7,13 @@ void read_file(char *filename, igraph_t *graph) {
     gfile = fopen(filename, "r");
     if (igraph_read_graph_edgelist(graph, gfile, 0, IGRAPH_UNDIRECTED))
     {
-#ifdef VERBOSE
+#if VERBOSE
         printf("[KO] Reading\n");
 #endif
         exit(2);
     }
     fclose(gfile);
-#ifdef VERBOSE
+#if VERBOSE
     printf("[OK] Reading %s\n", filename);
     printf("[OK] Graph of %i elements\n", igraph_vcount(graph));
 #endif

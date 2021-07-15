@@ -99,10 +99,13 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
     m = algo_max_choice(graph, &spanner, &bfs_v, &ecc, &vdeg, &subset, nb_subset);
 
 
+#if VERBOSE
     printf("diametral path: \n");
     igraph_vector_t path;
     get_diameter_path(&path, &spanner, &bfs_v, &ecc, m.diameter);
     vector_print(&path);
+    igraph_vector_destroy(&path);
+#endif
 
     // destroying the bfs objects
     igraph_vector_destroy(&(bfs_v.vids));
@@ -219,8 +222,11 @@ struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_ve
 	    }
         }        
         	
-	m.diameter = VECTOR(ecc->eccmax)[next]; 
-        printf("diameter = %lu\n", m.diameter);	
+	m.diameter = VECTOR(ecc->eccmax)[next];
+
+#if VERBOSE
+        printf("diameter = %lu\n", m.diameter);
+#endif
 
         if (m.nbfs < nb_subset)
            next = VECTOR(*subset)[m.nbfs];

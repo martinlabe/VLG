@@ -6,7 +6,6 @@
 #include "IO.h"
 #include "algo.h"
 #include "utils.h"
-#define VERBOSE
 
 
 
@@ -18,25 +17,14 @@ int main(int argc, char *argv[]) {
 
     struct timeval t1, t2;
 
-
     igraph_t graph;
-
-
 
     //read the file to the graph
     read_file(argv[2], &graph);
 
-
-
-
-
-
-
     igraph_vector_ptr_t comp;
     igraph_vector_ptr_init(&comp, 0);
-    
     igraph_decompose(&graph, &comp, IGRAPH_STRONG, -1, 3);
-
     igraph_destroy(&graph);
 
 
@@ -65,13 +53,10 @@ int main(int argc, char *argv[]) {
     {
         nb_subset = atoi(argv[3]);
     }
-    
+
+    // calling the algorithm and taking up the time
     gettimeofday(&t1, NULL);
-    
-     
     struct metrics m = runAlgorithm(atoi(argv[1]), gcc, nb_subset);
-    
-    
     gettimeofday(&t2, NULL);
     long time = ((t2.tv_sec - t1.tv_sec) * 1000000 + t2.tv_usec) - t1.tv_usec;
 
@@ -83,10 +68,9 @@ int main(int argc, char *argv[]) {
     fprintf(fp, "%u, %u, %ld\n", m.diameter, m.nbfs, time);
     fclose(fp);
 
+#if VERBOSE
     printf("%u, %u, %ld\n", m.diameter, m.nbfs, time);
-   
-
-
+#endif
 
     // destroy the objects
     igraph_decompose_destroy(&comp);

@@ -1,6 +1,8 @@
 #ifndef IO_H
 #define IO_H
 
+#define VERBOSE 0
+
 #include <igraph/igraph.h>
 
 void read_file(char *filename, igraph_t *graph);

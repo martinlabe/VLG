@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     // export the results
     char sbuf[1024];
     sprintf (sbuf, "out_%s", argv[2] + 10);
-    FILE *fp = fopen(sbuf, "w");
+    FILE *fp = fopen(sbuf, "a");
     fprintf(fp, "%u, %u, %ld\n", m.diameter, m.nbfs, time);
     fclose(fp);
 

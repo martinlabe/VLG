@@ -9,14 +9,18 @@ import matplotlib.pyplot as plt
 
 n = 500
 file = "../graphs/facebook_combined.txt"
-args = ['0', file, '15']
+args = ['1', file, '15']
 
-output = "./out_" + file[10:]
+name = args[0] + "-" + args[1][10:-4] + "-" + args[2]
+output = "./" + name + ".txt"
 
 
 def call(n, args):
     """ call n time the c program """
-    os.remove(output)
+    try:
+        os.remove(output)
+    except OSError:
+        pass
     for i in range(n):
         if i % 10 == 0:
             print(i)
@@ -35,6 +39,5 @@ plt.xlabel('Number of BFS')
 plt.ylabel('Density')
 plt.legend(title=r'$mean={}, var={}$'.format(np.mean(x), np.var(x)))
 plt.grid(True)
-name = "0-" + file[10:-4] + "-15.png"
-plt.savefig(name)
+plt.savefig(name + ".png")
 plt.show()

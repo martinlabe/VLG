@@ -6,7 +6,7 @@
 #include "subset.h"
 
 
-// merge the 
+// merge the vertices of the bfs with the spanner and calculate the new vertice degree
 void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
     
     igraph_vector_t vedges;
@@ -14,7 +14,9 @@ void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
 
     igraph_vector_t neighbors;
     igraph_vector_init(&neighbors, 0);
+    
 
+    //use the bfs parent list to get the edges of it
     long int it = 0;
     for (igraph_integer_t i = 0; i < igraph_vector_size(parents); i++) {
         igraph_integer_t p_i = VECTOR(*parents)[i];
@@ -46,7 +48,7 @@ void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
     igraph_vector_destroy(&neighbors);
 }
 
-
+//run the algorithm for the selected subset, nb of element done in subset, and the graph
 struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subset) {
 
 
@@ -83,12 +85,12 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
     igraph_vector_fill(&(ecc.eccdelta), DBL_MAX);
 
 
-    //run selected algo
-    
     struct metrics m;
 
     igraph_vector_t subset;
 
+
+    //choose the subset
     if (type == RANDOM_SUB)
         get_subset(&subset, graph);
     else if (type == COMMUNITY_SUB)
@@ -100,6 +102,7 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
 
 
 #if VERBOSE
+    //print the diametral path if verbose
     printf("diametral path: \n");
     igraph_vector_t path;
     get_diameter_path(&path, &spanner, &bfs_v, &ecc, m.diameter);
@@ -123,7 +126,7 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
     return m;
 }
 
-
+//find the diameter and fill the spanner
 struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_vectors *bfs_v, struct eccentricity *ecc, igraph_vector_t *vdeg, igraph_vector_t *subset, igraph_integer_t nb_subset)
 {
     struct metrics m = {0,0};
@@ -198,7 +201,8 @@ struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_ve
             }
 
         }
-
+        
+	//choose the next element or stop if no good candidate
 	stop = 1;
 	next = 0;
         for (igraph_integer_t j = 1; j < igraph_vector_size(&(ecc->eccmax)); j++)
@@ -221,16 +225,18 @@ struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_ve
 		}
 	    }
         }        
-        	
-	m.diameter = VECTOR(ecc->eccmax)[next];
 
 #if VERBOSE
+
+        //calculate and print the actual diameter
+	m.diameter = VECTOR(ecc->eccmax)[next];
         printf("diameter = %lu\n", m.diameter);
 #endif
-
+        //use the subset instead of the next depending of the choosen subset number 
         if (m.nbfs < nb_subset)
            next = VECTOR(*subset)[m.nbfs];
-    }
+
+   }
 
     m.diameter = max_vec(&ecc->eccmax); 
     return m;

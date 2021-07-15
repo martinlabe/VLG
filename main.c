@@ -23,9 +23,13 @@ int main(int argc, char *argv[]) {
     //read the file to the graph
     read_file(argv[2], &graph);
 
+
+    //get the gcc
     igraph_vector_ptr_t comp;
     igraph_vector_ptr_init(&comp, 0);
+    
     igraph_decompose(&graph, &comp, IGRAPH_STRONG, -1, 3);
+    
     igraph_destroy(&graph);
 
 
@@ -38,18 +42,8 @@ int main(int argc, char *argv[]) {
     }
 
 
-/*    igraph_vector_t test;
-    igraph_vector_init(&test, 0);
-    igraph_vs_t testv;
-    igraph_vs_1(&testv, 1125203);
-    igraph_eccentricity(gcc, &test, testv, IGRAPH_ALL);
-
-    printf("test0 = %f", VECTOR(test)[0]);
-
-    return 0;*/
-
-    igraph_integer_t nb_subset = 15;
-
+    //getting the nb of subset in argument
+    igraph_integer_t nb_subset = 15;    
     if (argc >= 4)
     {
         nb_subset = atoi(argv[3]);

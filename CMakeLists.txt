@@ -7,12 +7,14 @@ find_package(igraph REQUIRED)
 set(SRCS
     main.c
     algo.c
+    subset.c
     IO.c
     utils.c
     )
 
 set(HEADERS
     algo.h
+    subset.h
     IO.h
     utils.h
     )

@@ -5,8 +5,8 @@
 #include <igraph/igraph.h>
 
 
-#define DUMMY 0
-#define DELTA_CHOICE 1
+#define RANDOM_SUB 0
+#define COMMUNITY_SUB 1
 
 
 
@@ -33,13 +33,11 @@ struct metrics
 
     igraph_integer_t diameter;
     igraph_integer_t nbfs;
-
 };
 
-struct metrics runAlgorithm(int type, igraph_t *graph);
+struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subset);
 
-struct metrics algo_dummy(igraph_t *graph, igraph_t *spanner, struct bfs_vectors *bfs_v, struct eccentricity *ecc, igraph_vector_t *vdeg);
-struct metrics algo_delta_choice(igraph_t *graph, igraph_t *spanner, struct bfs_vectors *bfs_v, struct eccentricity *ecc, igraph_vector_t *vdeg);
+struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_vectors *bfs_v, struct eccentricity *ecc, igraph_vector_t *vdeg, igraph_vector_t *subset, igraph_integer_t nb_subset);
 
 
 #endif

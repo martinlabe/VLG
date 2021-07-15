@@ -77,7 +77,9 @@ int main(int argc, char *argv[]) {
 
 
     // export the results
-    FILE *fp = fopen("../out.txt", "w");
+    char sbuf[1024];
+    sprintf (sbuf, "out_%s", argv[2] + 10);
+    FILE *fp = fopen(sbuf, "w");
     fprintf(fp, "%u, %u, %ld\n", m.diameter, m.nbfs, time);
     fclose(fp);
 

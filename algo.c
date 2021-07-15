@@ -5,8 +5,10 @@
 #include "utils.h"
 #include "subset.h"
 
+
+// merge the 
 void merge(igraph_t *graph, igraph_vector_t *parents, igraph_vector_t *vdeg) {
-    /// XXX uses a lot of RAM by allocationg a vedges
+    
     igraph_vector_t vedges;
     igraph_vector_init(&vedges, igraph_vector_size(parents) * 2);
 
@@ -95,6 +97,12 @@ struct metrics runAlgorithm(int type, igraph_t *graph, igraph_integer_t nb_subse
         get_max_community_subset(&subset, graph);
 
     m = algo_max_choice(graph, &spanner, &bfs_v, &ecc, &vdeg, &subset, nb_subset);
+
+
+    printf("diametral path: \n");
+    igraph_vector_t path;
+    get_diameter_path(&path, &spanner, &bfs_v, &ecc, m.diameter);
+    vector_print(&path);
 
     // destroying the bfs objects
     igraph_vector_destroy(&(bfs_v.vids));
@@ -217,16 +225,6 @@ struct metrics algo_max_choice(igraph_t *graph, igraph_t *spanner, struct bfs_ve
         if (m.nbfs < nb_subset)
            next = VECTOR(*subset)[m.nbfs];
     }
-/* can be used to print the path.
-    for (igraph_integer_t j = 0; j < igraph_vector_size(&(ecc->ecc)); j++)
-    {
-         if (VECTOR(ecc->ecc)[j] == m.diameter)
-	 {
-             
-	 }
-    }
-*/
-
 
     m.diameter = max_vec(&ecc->eccmax); 
     return m;

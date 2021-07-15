@@ -54,3 +54,31 @@ igraph_integer_t max_veci(igraph_vector_t *v) {
             m = i;
     return m;
 }
+
+void get_diameter_path(igraph_vector_t *path, igraph_t *spanner, struct bfs_vectors *bfs_v, struct eccentricity *ecc, igraph_integer_t diameter)
+{
+// can be used to print the path.
+    igraph_integer_t max_ecc;
+    for (igraph_integer_t j = 0; j < igraph_vector_size(&(ecc->ecc)); j++)
+    {
+         //get the max eccentricity
+         if (VECTOR(ecc->ecc)[j] == diameter)
+	 {
+	     max_ecc = j;
+             break;
+	 }
+    }
+    igraph_bfs_simple(spanner,
+                  max_ecc,
+                  IGRAPH_ALL,
+                  &(bfs_v->vids),
+                  &(bfs_v->layers),
+                  &(bfs_v->parents));	
+    igraph_vector_init(path, 0);
+    igraph_integer_t opp = VECTOR(bfs_v->vids)[igraph_vector_size(&bfs_v->vids) - 1];
+    igraph_get_shortest_path(spanner, path, NULL, max_ecc,opp, IGRAPH_ALL) ;
+    
+}
+
+
+
